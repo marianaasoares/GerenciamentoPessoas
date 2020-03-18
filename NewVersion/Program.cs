@@ -8,32 +8,38 @@ namespace NewVersion
     {
         static Dictionary<string, DateTime> dicionarioPessoas = new Dictionary<string, DateTime>();
 
+        static string inicio = "Pressione qualquer tecla para voltar ao menu inicial ...";
+
         static void Main(string[] args)
         {
-            Console.WriteLine("Olá! Seja Bem vindo ao gerenciamento de aniversários.");
-            Console.WriteLine("Selecione uma das opções abaixo:");
-            Console.WriteLine("1- Adicionar nova pessoa");
-            Console.WriteLine("2- Pesquisar pessoa");
-            Console.WriteLine("3- Sair");
+            string opcao;
 
-            var opcao = int.Parse(Console.ReadLine());
-
-
-            while (opcao != 3)
+            do
             {
+                Console.Clear();
+                Console.WriteLine("Olá! Seja Bem vindo ao gerenciamento de aniversários.");
+                Console.WriteLine("Selecione uma das opções abaixo:");
+                Console.WriteLine("1- Adicionar nova pessoa");
+                Console.WriteLine("2- Pesquisar pessoa");
+                Console.WriteLine("3- Sair");
+
+                opcao = Console.ReadLine();
+
                 switch (opcao)
                 {
-                    case 1:
+                    case "1":
                         adicionarPessoa();
                         break;
-                    case 2:
+                    case "2":
                         pesquisarPessoa();
                         break;
-                    case 3:
+                    case "3":
                         break;
+
                 }
 
-            }
+            } while (opcao != "3");
+
 
         }
         public static void adicionarPessoa()
@@ -45,25 +51,24 @@ namespace NewVersion
             Console.WriteLine("Digite a data de nascimento da pessoa no formato dd/mm/aaaa:");
             var dataNascimento = Console.ReadLine();
 
-            var nomeConcatenado = nome + sobrenome;
             var dataCerta = Convert.ToDateTime(dataNascimento);
 
             Console.WriteLine("Os dados estão corretos?");
-            Console.WriteLine($"Nome: {nome}");
-            Console.WriteLine($"Sobrenome: {sobrenome}");
-            Console.WriteLine($"Data de Nascimento: {dataNascimento}");
+            Console.WriteLine($"Nome: {nome} {sobrenome}");
+            Console.WriteLine($"Data de Nascimento: {dataNascimento: dd/MM/yyyy}");
             Console.WriteLine("1- Sim");
             Console.WriteLine("2 - Não");
-            var opcao2 = int.Parse(Console.ReadLine());
+            var opcao2 = Console.ReadLine();
 
-            if (opcao2 == 1)
+            if (opcao2 == "1")
             {
-                dicionarioPessoas.Add(nomeConcatenado, dataCerta);
-                Console.WriteLine("Pessoa adicionada com sucesso");
+                dicionarioPessoas.Add($"{nome} {sobrenome}", dataCerta);
+                Console.WriteLine($"Pessoa adicionada com sucesso! {inicio}");
             }
             else
             {
-                Console.WriteLine("Dados descartados. Reinicie o programa para colocar os dados novamente.");
+                Console.WriteLine("Dados descartados. Reinicie o programa para colocar os dados novamente...");
+                Console.ReadKey();
             }
 
         }
@@ -73,11 +78,13 @@ namespace NewVersion
             Console.WriteLine("Digite o nome do usuário que quer encontrar os dados: ");
             var termoDePesquisa = Console.ReadLine();
 
-            var pessoasEncontradas = (from pessoa in dicionarioPessoas where pessoa.Key.ToLower().Contains(termoDePesquisa.ToLower()) select pessoa).ToList();
+            var pessoasEncontradas = (from pessoa in dicionarioPessoas
+                                      where pessoa.Key.ToLower().Contains(termoDePesquisa.ToLower())
+                                      select pessoa).ToList();
 
             if (pessoasEncontradas.Count > 0)
             {
-                Console.WriteLine("Selecione as pessoas abaixo");
+                Console.WriteLine("Selecione uma das pessoas encontradas abaixo: ");
                 for (var i = 0; i <pessoasEncontradas.Count; i++)
                 {
                     Console.WriteLine($"{i} - {pessoasEncontradas[i].Key}");
@@ -85,8 +92,46 @@ namespace NewVersion
 
                 var indexAExibir = Convert.ToInt32(Console.ReadLine());
 
+                if (indexAExibir < pessoasEncontradas.Count)
+                {
+                    var pessoa = pessoasEncontradas[indexAExibir];
+
+                    Console.WriteLine("Dados da pessoa escolhida:");
+                    Console.WriteLine($"Nome completo: {pessoa.Key}");
+                    Console.WriteLine($"Data de nascimento: {pessoa.Value:dd/MM/yyyy}");
+
+                    var dataNascimentoAtual = new DateTime(DateTime.Now.Year, pessoa.Value.Month, pessoa.Value.Day);
+
+                    var tempoAniversario = dataNascimentoAtual - DateTime.Now.Date;
+
+                    if(tempoAniversario.Days > 0)
+                    
+                        Console.Write($"Faltam {tempoAniversario.Days} dia(s) para esse aniversário. {inicio}");
+
+                    else if (tempoAniversario.Days == 0)
+                    
+                        Console.WriteLine($"Feliz Aniversário! {inicio}");
+                    
+                    else
+                
+                        Console.WriteLine($"Infelizmente você já fez aniversário esse ano. {inicio}");
+                    
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Console.WriteLine($"Opção inválida. {inicio}");
+                    Console.ReadKey();
+                }
+
 
             }
+            else {
+                Console.WriteLine($"Pessoa não encontrada, tente novamente. {inicio}");
+                Console.ReadKey();
+
+            }
+
 
         }
     }
